@@ -29,7 +29,6 @@
     "day23": "ts-node src/day23/solution.ts",
     "day24": "ts-node src/day24/solution.ts",
     "day25": "ts-node src/day25/solution.ts"
-
   },
   "keywords": [],
   "author": "",
@@ -39,5 +38,8 @@
     "@types/node": "^22.10.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "2024": "file:"
   }
 }
