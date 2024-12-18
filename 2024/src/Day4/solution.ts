@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 // Read input file
-const inputPath = path.resolve(__dirname, 'test_input.txt');
+const inputPath = path.resolve(__dirname, 'input.txt');
 const input = fs.readFileSync(inputPath, 'utf8').trim();
 const lines = input.split('\n');
 
@@ -10,113 +10,87 @@ const puzzle: string[][] = lines.map(line => {
     return line.trim().split('').map(char=> String(char));
 })
 
-let numberOfXmas: number = 0;
+// Boolean function to check for matches of provided word variable
+const canFindPuzzleWord = (puzzle: string[][], x_start: number, y_start:number, x_direction: number, y_direction: number, word: string): boolean => {
+    const rows = puzzle.length;
+    const columns = puzzle[0].length;
 
-// Find horizontal left to right occurrences
-for (let i:number = 0; i < puzzle.length; i++) {
-    for (let y: number = 0; y < puzzle[i].length; y++) {
-        if (puzzle[i][y] === 'X' && i < puzzle.length) {
-            if (puzzle[i][y+1] === 'M') {
-                if (puzzle[i][y+2] === 'A') {
-                    if (puzzle[i][y+3] === 'S') {
-                        numberOfXmas += 1;
-                    }
+    for (let k = 0; k < word.length; k++) {
+        const x = x_start + k * x_direction;
+        const y = y_start + k * y_direction;
+
+        // If out of bounds, return false.
+        if (x < 0 || x >= rows || y < 0 || y >= columns) return false;
+        // If letter does not match, return false
+        if (puzzle[x][y] !== word[k]) return false;
+    }
+
+    return true;
+}
+
+const countOccurrences = (puzzle: string[][], word: string): number => {
+    let occurrences: number = 0;
+    
+    const directions = [
+        {xDirection: 0, yDirection: 1}, // Left to right
+        {xDirection: 0, yDirection: -1}, // Right to left
+        {xDirection: 1, yDirection: 0}, // Top to bottom
+        {xDirection: -1, yDirection: 0}, // Bottom to top
+        {xDirection: 1, yDirection: 1}, // Diagonal down-right
+        {xDirection: 1, yDirection: -1}, // Diagonal down-left
+        {xDirection: -1, yDirection: 1}, // Diagonal up-right
+        {xDirection: -1, yDirection: -1} // Diagonal up-left
+    ]
+
+    const rows = puzzle.length;
+    const columns = puzzle[0].length;
+
+    for (let i = 0; i < rows; i++) {
+        for (let y = 0; y < columns; y++) {
+            if (puzzle[i][y] !== word[0]) continue; // Skip if letter does not match first letter of word.
+
+            // Check each direction
+            for (const {xDirection, yDirection} of directions) {
+                if (canFindPuzzleWord(puzzle, i, y, xDirection, yDirection, word)) {
+                    occurrences++;
                 }
             }
         }
     }
+
+    return occurrences;
 }
 
-// Find horizontal right to left occurrences
-for (let i:number = 0; i < puzzle.length; i++) {
-    for (let y: number = 0; y < puzzle[i].length; y++) {
-        if (puzzle[i][y] === 'X' && i < puzzle.length) {
-            if (puzzle[i][y-1] === 'M') {
-                if (puzzle[i][y-2] === 'A') {
-                    if (puzzle[i][y-3] === 'S') {
-                        numberOfXmas += 1;
-                    }
+const countOccurrencesInX = (puzzle: string[][], word: string): number => {
+    let occurrences: number = 0;
+    
+    const directions = [
+        {xDirection: 1, yDirection: 1}, // Diagonal down-right
+        {xDirection: 1, yDirection: -1}, // Diagonal down-left
+        {xDirection: -1, yDirection: 1}, // Diagonal up-right
+        {xDirection: -1, yDirection: -1} // Diagonal up-left
+    ]
+
+    const rows = puzzle.length;
+    const columns = puzzle[0].length;
+
+    for (let i = 0; i < rows; i++) {
+        for (let y = 0; y < columns; y++) {
+            if (puzzle[i][y] !== word[0]) continue; // Skip if letter does not match first letter of word.
+
+            // Check each direction
+            for (const {xDirection, yDirection} of directions) {
+                if (canFindPuzzleWord(puzzle, i, y, xDirection, yDirection, word)) {
+                    occurrences++;
                 }
             }
         }
     }
+
+    return occurrences;
 }
 
-// Find vertical downward occurrences
-for (let i:number = 0; i < puzzle.length; i++) {
-    for (let y: number = 0; y < puzzle[i].length; y++) {
-        if ((i+3) > puzzle.length) {
-            break;
-        }
-        if (puzzle[i][y] === 'X') {
-            if (puzzle[i+1][y] === 'M') {
-                if (puzzle[i+2][y] === 'A') {
-                    if (puzzle[i+3][y] === 'S') {
-                        numberOfXmas += 1;
-                    }
-                }
-            }
-        }
-    }
-}
 
-// Find vertical upward occurrences
-for (let i:number = 0; i < puzzle.length; i++) {
-    for (let y: number = 0; y < puzzle[i].length; y++) {
-        if (i > 3) { // start at line 3
-            if (puzzle[i][y] === 'X') {
-                if (puzzle[i-1][y] === 'M') {
-                    if (puzzle[i-2][y] === 'A') {
-                        if (puzzle[i-3][y] === 'S') {
-                            numberOfXmas += 1;
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
 
-// Find diagonal down to left
-for (let i:number = 0; i < puzzle.length; i++) {
-    for (let y: number = 0; y < puzzle[i].length; y++) {
-        if ((i+3) > puzzle.length) {
-            console.log("broke")
-            break;
-        }
-        if (puzzle[i][y] === 'X' && (puzzle[i][y+3] !== undefined)) {
-            console.log("found x")
-            if (puzzle[i+1][y+1] === 'M') {
-                console.log("found m")
-                if (puzzle[i+2][y+2] === 'A') {
-                    console.log("found a")
-                    if (puzzle[i+3][y+3] === 'S') {
-                        numberOfXmas += 1;
-                        console.log("found")
-                    }
-                }
-            }
-        }
-    }
-}
-
-// Find diagonal up to left
-/**
-for (let i:number = 0; i < puzzle.length; i++) {
-    for (let y: number = 0; y < puzzle[i].length; y++) {
-        if (i+3 > puzzle.length) { // start at line 3
-            if (puzzle[i][y] === 'X') {
-                if (puzzle[i-1][y] === 'M') {
-                    if (puzzle[i-2][y] === 'A') {
-                        if (puzzle[i-3][y] === 'S') {
-                            numberOfXmas += 1;
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-*/
-
-console.log("num: " + numberOfXmas)
+console.log("Solution part 1: " + countOccurrences(puzzle, 'XMAS'));
+console.log("Solution part 2: " + countOccurrencesInX(puzzle, 'MAS'));
