@@ -12,15 +12,17 @@ const map: string[][] = input.map(line => {
 })
 
 // Find the guards starting location in the warehouse
-const locateGuard = (map: string[][]): number[] => {
-    for (const line of map) {
-        for (let i = 0; i < line.length; i++) {
-            if (line[i] === '^') {
-                return [map.indexOf(line), line.indexOf(line[i])]
+const locateGuard = (map: string[][]): [number, number] => {
+    for (let rowIndex = 0; rowIndex < map.length; rowIndex++) {
+        const row = map[rowIndex];
+        for (let columnIndex = 0; columnIndex < row.length; columnIndex++) {
+            if (row[columnIndex] === '^') {
+                return [rowIndex, columnIndex];
             }
         }
     }
-    return [0]
+    // If no "Guard" found, return [-1, -1]
+    return [-1, -1];
 }
 
 // A helper function that determines which direction the guard is walking.
@@ -33,13 +35,74 @@ const direction = {
     left: [0, -1],
 }
 
-// Using the guard starting position, map out his walking path
-const determineGuardPath = (map: string[][], startingLocation: number[]) => {
-    for (let x = 0; x < map.length; x++) {
-        for (let y = 0; y < map[0].length; y++) {
-            
-        }
-    }
+const directionsInClockwiseOrder = ["up", "right", "down", "left"] as const;
+
+type DirectionName = keyof typeof direction;
+
+function turnClockwise(currentDir: DirectionName): DirectionName {
+    const currentIndex = directionsInClockwiseOrder.indexOf(currentDir);
+    const nextIndex = (currentIndex + 1) % directionsInClockwiseOrder.length;
+    return directionsInClockwiseOrder[nextIndex];
 }
 
-console.log("Guard location: " + locateGuard(map))
+// Using the guard starting position, map out his walking path
+const determineGuardPath = (map: string[][], startingLocation: number[]) => {
+    // An array for recording the guards path
+    let visitedPath: [number, number][] = [];
+
+    // Setting the starting direction to 'up'
+    let currentDirection: DirectionName = "up";
+
+    // Current coordinates
+    let x = startingLocation[0];
+    let y = startingLocation[1];
+
+    // While guard is within the map:
+    while(true) {
+        // Record guard-path
+        visitedPath.push([x,y]);
+        const [directionX, directionY] = direction[currentDirection];
+        const nextX = x + directionX;
+        const nextY = y + directionY;
+        
+        // If out of bounds, stop
+        if (nextX < 0 || nextX >= map.length || nextY < 0 || nextY >= map[0].length) {
+            break;
+        }
+
+        // Check if there is an obstruction in the guards path
+        if (map[nextX][nextY] === "#") {
+            // If obstruction, turnClockwise
+            currentDirection = turnClockwise(currentDirection);
+        } else {
+            // Set new location
+            x = nextX;
+            y = nextY;
+        }
+
+    }
+    return visitedPath;
+}
+
+let guardPath = determineGuardPath(map, locateGuard(map));
+
+function getUniqueCoordinates(visitedPath: Array<[number, number]>): Array<[number, number]> {
+    const seen = new Set<string>();
+    const uniquePath: Array<[number, number]> = [];
+
+    for (const [row, col] of visitedPath) {
+        const key = `${row},${col}`;
+        if (!seen.has(key)) {
+            seen.add(key);
+            uniquePath.push([row, col]);
+        }
+    }
+
+    return uniquePath;
+}
+
+let uniquePath = getUniqueCoordinates(guardPath);
+
+console.log(locateGuard(map));
+console.log(determineGuardPath(map, locateGuard(map)).length);
+console.log(uniquePath.length);
