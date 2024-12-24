@@ -11,7 +11,12 @@ const map: string[][] = input.map(line => {
     return line.trim().split('').map(char => String(char));
 })
 
-// Find the guards starting location in the warehouse
+/**
+ * Find the guards starting location.
+ * If guard is not found, return [-1,-1] to indicate no guard found.
+ * @param map 
+ * @returns 
+ */
 const locateGuard = (map: string[][]): [number, number] => {
     for (let rowIndex = 0; rowIndex < map.length; rowIndex++) {
         const row = map[rowIndex];
@@ -34,18 +39,26 @@ const direction = {
     down: [1, 0],
     left: [0, -1],
 }
-
 const directionsInClockwiseOrder = ["up", "right", "down", "left"] as const;
-
 type DirectionName = keyof typeof direction;
 
-function turnClockwise(currentDir: DirectionName): DirectionName {
-    const currentIndex = directionsInClockwiseOrder.indexOf(currentDir);
+/**
+ * 
+ * @param currentDirection 
+ * @returns 
+ */
+function turnClockwise(currentDirection: DirectionName): DirectionName {
+    const currentIndex = directionsInClockwiseOrder.indexOf(currentDirection);
     const nextIndex = (currentIndex + 1) % directionsInClockwiseOrder.length;
     return directionsInClockwiseOrder[nextIndex];
 }
 
-// Using the guard starting position, map out his walking path
+/**
+ * Using the map and the guards starting position, to map out the guards route.
+ * @param map 
+ * @param startingLocation 
+ * @returns 
+ */
 const determineGuardPath = (map: string[][], startingLocation: number[]) => {
     // An array for recording the guards path
     let visitedPath: [number, number][] = [];
@@ -86,6 +99,11 @@ const determineGuardPath = (map: string[][], startingLocation: number[]) => {
 
 let guardPath = determineGuardPath(map, locateGuard(map));
 
+/**
+ * Return an array of all unique 'map' locations visited by the guard.
+ * @param visitedPath 
+ * @returns 
+ */
 function getUniqueCoordinates(visitedPath: Array<[number, number]>): Array<[number, number]> {
     const seen = new Set<string>();
     const uniquePath: Array<[number, number]> = [];
@@ -101,7 +119,10 @@ function getUniqueCoordinates(visitedPath: Array<[number, number]>): Array<[numb
     return uniquePath;
 }
 
+// Solution for part 1
 let uniquePath = getUniqueCoordinates(guardPath);
+
+
 
 console.log(locateGuard(map));
 console.log(determineGuardPath(map, locateGuard(map)).length);
