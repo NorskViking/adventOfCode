@@ -14,6 +14,7 @@ const map: string[][] = input.map(line => {
 /**
  * Find the guards starting location.
  * If guard is not found, return [-1,-1] to indicate no guard found.
+ * 
  * @param map 
  * @returns 
  */
@@ -43,6 +44,7 @@ const directionsInClockwiseOrder = ["up", "right", "down", "left"] as const;
 type DirectionName = keyof typeof direction;
 
 /**
+ * Helper function to turn the guard when obstacle is found
  * 
  * @param currentDirection 
  * @returns 
@@ -55,6 +57,7 @@ function turnClockwise(currentDirection: DirectionName): DirectionName {
 
 /**
  * Using the map and the guards starting position, to map out the guards route.
+ * 
  * @param map 
  * @param startingLocation 
  * @returns 
@@ -66,9 +69,8 @@ const determineGuardPath = (map: string[][], startingLocation: number[]) => {
     // Setting the starting direction to 'up'
     let currentDirection: DirectionName = "up";
 
-    // Current coordinates
-    let x = startingLocation[0];
-    let y = startingLocation[1];
+    // Current start coordinates of guard
+    let [x, y] = startingLocation;
 
     // While guard is within the map:
     while(true) {
@@ -101,6 +103,7 @@ let guardPath = determineGuardPath(map, locateGuard(map));
 
 /**
  * Return an array of all unique 'map' locations visited by the guard.
+ * 
  * @param visitedPath 
  * @returns 
  */
@@ -123,7 +126,87 @@ function getUniqueCoordinates(visitedPath: Array<[number, number]>): Array<[numb
 let uniquePath = getUniqueCoordinates(guardPath);
 
 
+/**
+ * Helper function to see if we have an infinite-loop.
+ * We consider hitting the same location with the same direction as having an infinite-loop.
+ * 
+ * @param map 
+ * @param startingLocation 
+ * @returns 
+ */
+const testIfInfiniteLoop = (map: string[][], startingLocation: [number, number]): boolean => {
+    let [x, y] = startingLocation;
+    let currentDirection: DirectionName = "up";
 
-console.log(locateGuard(map));
-console.log(determineGuardPath(map, locateGuard(map)).length);
-console.log(uniquePath.length);
+    // Keep track of visited states: state = (row, col, directionName)
+    const visitedStates = new Set<string>();
+
+    while (true) {
+        const stateKey = `${x},${y},${currentDirection}`;
+        if (visitedStates.has(stateKey)) {
+            // We have been here (same location and direction), so we can assume infinite loop
+            return true;
+        }
+        visitedStates.add(stateKey)
+
+        // Move or turn
+        const [directionX, directionY] = direction[currentDirection];
+        const nextX = x + directionX;
+        const nextY = y + directionY;
+
+        // Check if out of bounds, then no infinite-loop
+        if (nextX < 0 || nextX >= map.length || nextY < 0 || nextY >= map[0].length) {
+            return false;
+        }
+
+        if (map[nextX][nextY] === "#") {
+            // If obstruction, turnClockwise
+            currentDirection = turnClockwise(currentDirection);
+        } else {
+            // Set new location
+            x = nextX;
+            y = nextY;
+        }
+    }
+}
+
+/**
+ * Helper function to clone the original map, so that we can modify the clone
+ * without overwriting the original.
+ * 
+ * @param map 
+ * @returns 
+ */
+const cloneMap = (originalMap: string[][]): string[][] => {
+    return originalMap.map((row) => [...row]);
+}
+
+const testObstaclePlacement = (originalMap: string[][], startingLocation: [number,number]): Array<[number,number]> => {
+    // Get the original guard-path with no modifications.
+    const initialPath = determineGuardPath(originalMap, startingLocation)
+    // Remove the starting location, as we can't place an obstacle where
+    // the guard starts.
+    initialPath.shift();
+
+    const loopingObstacleLocations: Array<[number,number]> = []
+
+    // For each position of visited, attempt placing an obstacle
+    for (const [obstacleX, obstacleY] of initialPath) {
+        // Clone the map so we don't overwrite the original
+        let clonedMap = cloneMap(originalMap);
+
+        // Place an obstacle '#' at (obstacleX, obstacleY)
+        clonedMap[obstacleX][obstacleY] = '#';
+
+        if (testIfInfiniteLoop(clonedMap, startingLocation)) {
+            loopingObstacleLocations.push([obstacleX, obstacleY]);
+        }
+    }
+
+    // Return all unique possible placements of obstacles that can cause an infinite loop
+    return getUniqueCoordinates(loopingObstacleLocations);
+}
+
+console.log("Solution part 1: " + uniquePath.length);
+
+console.log("Solution part 2: " + testObstaclePlacement(map, locateGuard(map)).length)
