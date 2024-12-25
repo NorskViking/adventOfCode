@@ -43,7 +43,7 @@ const parsedData = parseCalibrations(input);
  * @param operators 
  * @returns 
  */
-const calculateIfValuesGiveSum = (targetCalibration: number, values: number[], operators: Array<'+'|'*'>): boolean => {
+const calculateIfValuesGiveSum = (targetCalibration: number, values: number[], operators: Array<'+'|'*'|'||'>): boolean => {
     // The set of possible results after processing i-th number
     let currentResults = new Set<number>([values[0]]);
 
@@ -62,6 +62,9 @@ const calculateIfValuesGiveSum = (targetCalibration: number, values: number[], o
                         break;
                     case '*':
                         newValue = result * nextNumber;
+                        break;
+                    case '||':
+                        newValue = parseInt(`${result}${nextNumber}`, 10);
                         break;
                 }
                 if (newValue !== null) {
@@ -94,5 +97,20 @@ const getSumOfValidCalibrations = (calibrationData: Map<number, number[]>): numb
     return totalCalibrationResult;
 }
 
+const getSumOfValidCalibrationsWithNewOperator = (calibrationData: Map<number, number[]>): number => {
+    let totalCalibrationResult: number = 0;
+    // For all given sets of calibrations, check if the values are valid
+    // Add the calibration-value to the total
+    for (const [calibrationValue, numbers] of parsedData.entries()) {
+        if(calculateIfValuesGiveSum(calibrationValue, numbers, ['+', '*', '||'])) {
+            totalCalibrationResult += calibrationValue;
+        }
+    }
+    return totalCalibrationResult;
+}
+
+
 const calibrationResult = getSumOfValidCalibrations(parsedData);
+const newCalibrationResults = getSumOfValidCalibrationsWithNewOperator(parsedData);
 console.log("Solution part 1: " + calibrationResult);
+console.log("Solution part 2: " + newCalibrationResults);
