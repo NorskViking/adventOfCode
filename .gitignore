@@ -1,12 +1,14 @@
 # dependencies
-/node_modules
-*/node_modules
-./node_modules
+node_modules/
+.node_modules/
+built/*
+build.json
 
 #testing
 /coverage
 
 # misc
+.env
 .DS_store
 .env.local
 .env.development.local
