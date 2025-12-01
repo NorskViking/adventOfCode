@@ -1,0 +1,26 @@
+{
+  "name": "adventofcode",
+  "version": "1.0.0",
+  "description": "<a id=\"readme-top\"></a>\r # Advent Of Code\r My solutions for the Advent of Code programming challenges.\r <!-- ABOUT -->\r ## About the Project\r This is my collection of solutions for the Advent of Code programming challenges, solved using Typescript in Node.js.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NorskViking/adventOfCode.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/NorskViking/adventOfCode/issues"
+  },
+  "homepage": "https://github.com/NorskViking/adventOfCode#readme",
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}
