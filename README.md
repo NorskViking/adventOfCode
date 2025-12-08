@@ -9,7 +9,7 @@ Each year and day have their own solution and input files.
 
 To run the code:
 ```bash
-npm run dev 2024\day1\solution.ts
+npm run dev <year>\day<num>\solution.ts
 
-npx tsx 2024\day1\solution.ts 
+npx tsx <year>\day<num>\solution.ts 
 ```
