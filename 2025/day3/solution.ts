@@ -18,7 +18,7 @@ function puzzleNumbers(line: string): number[] {
  *  234234234234278 - highest possible: 78
  *  818181911112111 - highest possible: 92
  * 
- * @param batteries 
+ * @param lines
  * @returns 
  */
 function puzzleSolverPartOne(lines: string[]): number {
@@ -26,25 +26,20 @@ function puzzleSolverPartOne(lines: string[]): number {
 
     for (const line of lines) {
         const batteryBank: number[] = puzzleNumbers(line) || [0];
-        let firstBattery = batteryBank[0] || 0;
-        let firstBatteryPosition = 0;
         
-        // Find largest possible for the first battery, before end of battery bank
-        for (let b = 0; b <= batteryBank.length-2; b++) {
-            const currentBattery = batteryBank[b] ?? 0;
-            if (firstBattery < currentBattery) {
-                firstBattery = currentBattery;
-                firstBatteryPosition = b;
+        let firstBatteryPosition = 0;
+        let firstBatteryValue = batteryBank[0] || 0;
+        
+        for (let i = 0; i < batteryBank.length -1; i++) {
+            if (batteryBank[i]! > firstBatteryValue) {
+                firstBatteryValue = batteryBank[i]!;
+                firstBatteryPosition = i;
             }
         }
-        let secondBattery = batteryBank[firstBatteryPosition+1] || 0;
-        for (let b = firstBatteryPosition+1; b < batteryBank.length; b++) {
-            const currentBattery = batteryBank[b] ?? 0;
-            if (secondBattery < currentBattery) {
-                secondBattery = currentBattery;
-            }
-        }
-        const batteryJoltage: number = parseInt(`${firstBattery}${secondBattery}`);
+
+        const secondBatteryValue = Math.max(...batteryBank.slice(firstBatteryPosition + 1));
+
+        const batteryJoltage = parseInt(`${firstBatteryValue}${secondBatteryValue}`)
         joltageOutput += batteryJoltage;
     }
 
