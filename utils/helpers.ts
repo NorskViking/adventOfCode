@@ -1,7 +1,10 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { fileURLToPath } from 'url';
 
-export function createFileReader(baseDir: string) {
+export function createFileReader(importMetaUrl: string) {
+    const baseDir = path.dirname(fileURLToPath(importMetaUrl));
+
     return {
         readInput(filePath: string): string {
             const fullPath = path.join(baseDir, filePath);
