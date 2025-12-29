@@ -2,7 +2,7 @@ import { createFileReader } from "@utils/helpers";
 
 // Read input files
 const reader = createFileReader(import.meta.url);
-const puzzleData: string = reader.readInput('input.txt');
+const puzzleData: string = reader.readInput('test_input.txt');
 const puzzleLines: string[] = reader.readLines(puzzleData);
 
 function puzzleNumbers(line: string): number[] {
@@ -46,6 +46,54 @@ function puzzleSolverPartOne(lines: string[]): number {
     return joltageOutput;
 }
 
-const solutionOne = puzzleSolverPartOne(puzzleLines);
+const solutionPartOne = puzzleSolverPartOne(puzzleLines);
+console.log("Solution part one: " + solutionPartOne)
 
-console.log("Solution part one: " + solutionOne)
+// Find valid batteries helper function
+function findValidBatteries(batteries: number[], findNumBatteries = 12): string {
+    const numBatteries = batteries.length;
+    if (findNumBatteries <= 0) return "";
+    if (numBatteries <= findNumBatteries) return batteries.join("");
+
+    let start = 0;
+    let result = "";
+
+    for (let batteriesLeft = findNumBatteries; batteriesLeft > 0; batteriesLeft--) {
+        // 
+        const endOfBatteryBank = numBatteries - batteriesLeft;
+
+        // Find the highest value in [start...endOfBatteryBank]
+        let batteriPosition = start;
+        let batteriValue = batteries[start]!;
+
+        for (let i = start; i <= endOfBatteryBank; i++) {
+            const value = batteries[i]!;
+            if (value > batteriValue) {
+                batteriValue = value;
+                batteriPosition = i;
+                if (batteriValue === 9) break; // No higher value then 9, go to next value
+            }
+        }
+
+        result += String(batteriValue);
+        start = batteriPosition + 1; // Next battery starting position
+    }
+
+    return result;
+}
+
+function puzzleSolverPartTwo(lines: string[]): bigint {
+    const numberOfBatteriesToFind = 12
+    let joltageOutput = 0n;
+
+    for (const line of lines) {
+        const batteryBank = puzzleNumbers(line) ?? [0];
+        const batteryJoltage = findValidBatteries(batteryBank, numberOfBatteriesToFind);
+        joltageOutput += BigInt(batteryJoltage || "0");
+    }
+
+    return joltageOutput;
+}
+
+const solutionPartTwo = puzzleSolverPartTwo(puzzleLines);
+console.log(solutionPartTwo);
