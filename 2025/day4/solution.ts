@@ -15,11 +15,8 @@ const gridAdjacents: [number, number][] = [
     [1, -1], [1, 0], [1, 1], 
 ]
 
-function isWithinGrid(row: number, column: number, totalRows: number, totalColumns: number) {
-    return row >= 0 && row < totalRows && column >= 0 && column < totalColumns;
-}
-
 /**
+ * Count all adjacent paper rolls of current 'roll' in the grid
  * 
  * @param grid 
  * @param rowIndex 
@@ -75,9 +72,17 @@ function findMovableRolls(grid: string[][]): number {
     return movableRolls;
 }
 
+// Get the solution for part one
 const resultPartOne = findMovableRolls(paperRollGrid);
 console.log("Solution part one: " + resultPartOne);
 
+/**
+ * Helper function for part two.
+ * Remove valid paper rolls from the grid
+ * 
+ * @param grid 
+ * @returns 
+ */
 function findAndRemoveRoll(grid: string[][]): string[][] {
     let newGrid = grid.map(row => [...row]);
 
@@ -92,10 +97,8 @@ function findAndRemoveRoll(grid: string[][]): string[][] {
     return newGrid;
 }
 
-const testGrid: string[][] = findAndRemoveRoll(paperRollGrid);
-//console.log(testGrid);
-
 /**
+ * Solve day 4 part two
  * Find and remove paper rolls, until nomore can be removed
  * 
  * @param grid 
@@ -118,5 +121,6 @@ function findAllMovableRolls(grid: string[][]): number {
     return totalMovableRolls;
 }
 
+// Get the solution for part two
 const resultPartTwo = findAllMovableRolls(paperRollGrid);
 console.log("Solution part two: " + resultPartTwo)
