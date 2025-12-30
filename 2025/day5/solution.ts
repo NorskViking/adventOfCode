@@ -8,12 +8,12 @@ const puzzleLines: string[] = reader.readLines(puzzleData);
 console.log(puzzleLines);
 
 const idRanges: [number, number][] = [];
-const produceIDs: number[] = [];
+const ingredientIDs: number[] = [];
 
 const rangeAndIdSeperatorIndex = puzzleLines.findIndex(line => line.trim() === '');
 
 /**
- * Find all ID ranges for fresh produce
+ * Find all ID ranges for fresh ingredient
  */
 for (let i = 0; i < rangeAndIdSeperatorIndex; i++) {
     const [lowerRange, upperRange] = puzzleLines[i]?.split('-');
@@ -23,12 +23,12 @@ for (let i = 0; i < rangeAndIdSeperatorIndex; i++) {
 }
 
 /**
- * Find all produce IDs
+ * Find all ingredient IDs
  */
 for (let y = rangeAndIdSeperatorIndex; y < puzzleLines.length; y++) {
     const ids = puzzleLines[y];
     if (ids) {
-        produceIDs.push(parseInt(ids))
+        ingredientIDs.push(parseInt(ids))
     }
 }
 
