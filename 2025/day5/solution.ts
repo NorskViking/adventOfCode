@@ -79,3 +79,49 @@ function checkAllIngredients(ids: number[], ranges: number[][]): number {
 const totalFreshIngredients = checkAllIngredients(ingredientIDs, idRanges);
 console.log("Number of fresh ingredients: " + totalFreshIngredients);
 
+// Helper function, remove duplicate number values
+// ToDo?: move over to helpers.ts and import?
+const removeDuplicates = (array: number[]): number[] => {
+    return array.filter((value,
+        index) => array.indexOf(value) === index);
+    
+}
+
+/**
+ * Helper function for part two, add all ID values in range to list
+ * 
+ * @param idList 
+ * @param first 
+ * @param last 
+ * @returns 
+ */
+function addValidIDsToList(idList: number[], first: number, last: number): number[] {
+    let currentIDs = [...idList];
+    // We know we are only working with two ID-range numbers
+    const firstID = first;
+    const lastID = last;  
+    
+    for (let i = firstID; i < lastID; i++) {
+        currentIDs.push(i);
+    }
+
+    currentIDs = removeDuplicates(currentIDs);
+
+    return currentIDs;
+}
+
+
+function findAllValidIngredientIDs(allRanges: number[][]): number {
+    let validIDs: number[] = [];
+    const lengthOfRanges = allRanges.length;
+
+    for (let i = 0; i < lengthOfRanges; i++) {
+        validIDs = addValidIDsToList(validIDs, allRanges[i][0], allRanges[i][1]);
+    }
+
+    return validIDs.length;
+}
+
+
+const totalValidIngredientIDs = findAllValidIngredientIDs(idRanges);
+console.log("Total number of valid ingredent IDs: " + totalValidIngredientIDs);
