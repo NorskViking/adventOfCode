@@ -7,7 +7,9 @@ const puzzleData: string = reader.readInput('input.txt');
 const puzzleLines: string[] = reader.readLines(puzzleData);
 
 // Sort into IDs and ranges
-const idRanges: [number, number][] = [];
+type IdRange = [bigint, bigint];
+
+const idRanges: [bigint, bigint][] = [];
 const ingredientIDs: number[] = [];
 
 const rangeAndIdSeperatorIndex = puzzleLines.findIndex(line => line.trim() === '');
@@ -17,8 +19,8 @@ const rangeAndIdSeperatorIndex = puzzleLines.findIndex(line => line.trim() === '
  */
 for (let i = 0; i < rangeAndIdSeperatorIndex; i++) {
     const [lowerRange, upperRange] = puzzleLines[i]!.split('-');
-    const lowerValue = parseInt(lowerRange, 10);
-    const upperValue = parseInt(upperRange, 10);
+    const lowerValue = BigInt(lowerRange);
+    const upperValue = BigInt(upperRange);
 
     idRanges.push([lowerValue, upperValue])
 }
@@ -41,9 +43,8 @@ for (let y = rangeAndIdSeperatorIndex + 1; y < puzzleLines.length; y++) {
  * @param id 
  * @returns 
  */
-function idInRange(lowerRange: number, upperRange: number, id: number): boolean {
+function idInRange(lowerRange: bigint, upperRange: bigint, id: number): boolean {
     if (id >= lowerRange && id <= upperRange) {
-        //console.log(id);
         return true;
     };
     
@@ -51,12 +52,13 @@ function idInRange(lowerRange: number, upperRange: number, id: number): boolean 
 }
 
 /**
+ * Find all 
  * 
  * @param ids 
  * @param ranges 
  * @returns 
  */
-function checkAllIngredients(ids: number[], ranges: number[][]): number {
+function checkAllIngredients(ids: number[], ranges: bigint[][]): number {
     let numFreshIngredients = 0; 
     
     for (let i = 0; i < ids.length; i++) {
@@ -123,5 +125,52 @@ function findAllValidIngredientIDs(allRanges: number[][]): number {
 }
 
 
-const totalValidIngredientIDs = findAllValidIngredientIDs(idRanges);
-console.log("Total number of valid ingredent IDs: " + totalValidIngredientIDs);
+// New solution?:
+
+
+function mergeRanges(ranges: IdRange[]): IdRange[] {
+    if (ranges.length === 0) return [];
+
+    const sortedRanges = [...ranges].sort((a, b) => {
+        if (a[0] < b[0]) return -1;
+        if (a[0] > b[0]) return 1;
+        return 0;
+    });
+
+    const merged: IdRange[] = [];
+    let [currentStart, currentEnd] = sortedRanges[0];
+
+    for (let i = 1; i < sortedRanges.length; i++) {
+        const [start, end] = sortedRanges[i];
+
+        if (start <= currentEnd + 1n) {
+            if (end > currentEnd) {
+                currentEnd = end;
+            }
+        } else {
+            merged.push([currentStart, currentEnd]);
+            currentStart = start;
+            currentEnd = end;
+        }
+    }
+
+    merged.push([currentEnd, currentEnd]);
+    return merged;
+}
+
+function countIdsInRanges(ranges: IdRange[]): bigint {
+    const merged = mergeRanges(ranges);
+    let total = 0n;
+
+    for (const [start, end] of merged) {
+        total += (end - start + 1n);
+    }
+
+    return total;
+}
+
+const totalValidIds = countIdsInRanges(idRanges);
+console.log("total: " +totalValidIds);
+
+//const totalValidIngredientIDs = findAllValidIngredientIDs(idRanges);
+//console.log("Total number of valid ingredent IDs: " + totalValidIngredientIDs);
