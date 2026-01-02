@@ -1,6 +1,5 @@
 import { createFileReader } from "@utils/helpers";
 import { read } from "fs";
-import { isNumberObject } from "util/types";
 
 const reader = createFileReader(import.meta.url);
 const puzzleData: string = reader.readInput('input.txt');
@@ -10,7 +9,7 @@ const puzzleLines: string[] = reader.readLines(puzzleData);
 type IdRange = [bigint, bigint];
 
 const idRanges: [bigint, bigint][] = [];
-const ingredientIDs: number[] = [];
+const ingredientIDs: bigint[] = [];
 
 const rangeAndIdSeperatorIndex = puzzleLines.findIndex(line => line.trim() === '');
 
@@ -18,9 +17,9 @@ const rangeAndIdSeperatorIndex = puzzleLines.findIndex(line => line.trim() === '
  * Find all ID ranges for fresh ingredient
  */
 for (let i = 0; i < rangeAndIdSeperatorIndex; i++) {
-    const [lowerRange, upperRange] = puzzleLines[i]!.split('-');
-    const lowerValue = BigInt(lowerRange);
-    const upperValue = BigInt(upperRange);
+    const [start, end] = puzzleLines[i]!.split('-');
+    const lowerValue = BigInt(start);
+    const upperValue = BigInt(end);
 
     idRanges.push([lowerValue, upperValue])
 }
@@ -31,20 +30,20 @@ for (let i = 0; i < rangeAndIdSeperatorIndex; i++) {
 for (let y = rangeAndIdSeperatorIndex + 1; y < puzzleLines.length; y++) {
     const id = puzzleLines[y]?.trim();
     if (id) {
-        ingredientIDs.push(parseInt(id))
+        ingredientIDs.push(BigInt(id))
     }
 }
 
 /**
  * Helper function, is current ID is in range
  * 
- * @param lowerRange 
- * @param upperRange 
+ * @param start 
+ * @param end 
  * @param id 
  * @returns 
  */
-function idInRange(lowerRange: bigint, upperRange: bigint, id: number): boolean {
-    if (id >= lowerRange && id <= upperRange) {
+function idInRange(start: bigint, end: bigint, id: bigint): boolean {
+    if (id >= start && id <= end) {
         return true;
     };
     
@@ -58,8 +57,8 @@ function idInRange(lowerRange: bigint, upperRange: bigint, id: number): boolean 
  * @param ranges 
  * @returns 
  */
-function checkAllIngredients(ids: number[], ranges: bigint[][]): number {
-    let numFreshIngredients = 0; 
+function checkAllIngredients(ids: bigint[], ranges: bigint[][]): bigint {
+    let numFreshIngredients = 0n; 
     
     for (let i = 0; i < ids.length; i++) {
         const currentID = ids[i];
@@ -81,53 +80,12 @@ function checkAllIngredients(ids: number[], ranges: bigint[][]): number {
 const totalFreshIngredients = checkAllIngredients(ingredientIDs, idRanges);
 console.log("Number of fresh ingredients: " + totalFreshIngredients);
 
-// Helper function, remove duplicate number values
-// ToDo?: move over to helpers.ts and import?
-const removeDuplicates = (array: number[]): number[] => {
-    return array.filter((value,
-        index) => array.indexOf(value) === index);
-    
-}
 
 /**
- * Helper function for part two, add all ID values in range to list
  * 
- * @param idList 
- * @param first 
- * @param last 
+ * @param ranges 
  * @returns 
  */
-function addValidIDsToList(idList: number[], first: number, last: number): number[] {
-    let currentIDs = [...idList];
-    // We know we are only working with two ID-range numbers
-    const firstID = first;
-    const lastID = last;  
-    
-    for (let i = firstID; i < lastID; i++) {
-        currentIDs.push(i);
-    }
-
-    currentIDs = removeDuplicates(currentIDs);
-
-    return currentIDs;
-}
-
-
-function findAllValidIngredientIDs(allRanges: number[][]): number {
-    let validIDs: number[] = [];
-    const lengthOfRanges = allRanges.length;
-
-    for (let i = 0; i < lengthOfRanges; i++) {
-        validIDs = addValidIDsToList(validIDs, allRanges[i][0], allRanges[i][1]);
-    }
-
-    return validIDs.length;
-}
-
-
-// New solution?:
-
-
 function mergeRanges(ranges: IdRange[]): IdRange[] {
     if (ranges.length === 0) return [];
 
@@ -154,7 +112,7 @@ function mergeRanges(ranges: IdRange[]): IdRange[] {
         }
     }
 
-    merged.push([currentEnd, currentEnd]);
+    merged.push([currentStart, currentEnd]);
     return merged;
 }
 
@@ -170,7 +128,4 @@ function countIdsInRanges(ranges: IdRange[]): bigint {
 }
 
 const totalValidIds = countIdsInRanges(idRanges);
-console.log("total: " +totalValidIds);
-
-//const totalValidIngredientIDs = findAllValidIngredientIDs(idRanges);
-//console.log("Total number of valid ingredent IDs: " + totalValidIngredientIDs);
+console.log("total: " + totalValidIds);
