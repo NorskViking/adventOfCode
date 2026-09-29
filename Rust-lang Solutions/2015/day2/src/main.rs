@@ -79,7 +79,7 @@ fn main() {
     println!("Advent of Code 2015, Day 2\n");
     
     let puzzle = fs::read_to_string("puzzle.txt")
-    .expect("Failed to read file");
+        .expect("Failed to read file");
 
 /*  ----------
 Part 1
