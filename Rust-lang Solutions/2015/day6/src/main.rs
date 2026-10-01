@@ -27,10 +27,10 @@ impl Light {
 #[derive(Debug, Clone)]
 struct Instructions {
     command: String,
-    x_from: i32,
-    y_from: i32,
-    x_too: i32,
-    y_too: i32,
+    x_from: usize,
+    y_from: usize,
+    x_too: usize,
+    y_too: usize,
 }
 
 // Parse puzzle input and get the instructions
@@ -40,25 +40,46 @@ fn parse_input(input: &str) -> Vec<Instructions> {
     reg.captures_iter(input)
         .map(|caps| Instructions {
             command: caps["command"].to_string(),
-            x_from: caps["x_from"].parse::<i32>().unwrap(),
-            y_from: caps["y_from"].parse::<i32>().unwrap(),
-            x_too: caps["x_too"].parse::<i32>().unwrap(),
-            y_too: caps["y_too"].parse::<i32>().unwrap(),
+            x_from: caps["x_from"].parse::<usize>().unwrap(),
+            y_from: caps["y_from"].parse::<usize>().unwrap(),
+            x_too: caps["x_too"].parse::<usize>().unwrap(),
+            y_too: caps["y_too"].parse::<usize>().unwrap(),
         })
         .collect()
 }
 
 /*
+ * 
 */
-fn fix_lights(lights: Vec<Vec<Light>>, _command: &str, x_f: i32, y_f: i32, x_t: i32, y_t: i32) -> Vec<Vec<Light>> {
+fn fix_lights(mut lights: Vec<Vec<Light>>, command: &str, x_f: usize, y_f: usize, x_t: usize, y_t: usize) -> Vec<Vec<Light>> {
     
-    for x in x_f..x_t {
-        for y in y_f..y_t {
-            println!("{} {}", x, y);
+    for row in x_f..x_t+1 {
+        for col in y_f..y_t+1 {
+            if command == "turn off" {
+                lights[row][col].turn_off();
+            } else if command == "turn on" {
+                lights[row][col].turn_on();
+            } else if command == "toggle" {
+                lights[row][col].toggle();
+            }
         }
     }
 
     lights
+}
+
+fn read_lights(lights: Vec<Vec<Light>>) -> u32 {
+    let mut num_lights_turned_on: u32 = 0;
+
+    for row in lights {
+        for light in row {
+            if light.turned_on {
+                num_lights_turned_on += 1;
+            }
+        }
+    }
+
+    num_lights_turned_on
 }
 
 
@@ -73,16 +94,13 @@ fn main() {
 
     let instructions = parse_input(&puzzle);
 
-    println!(
-        "command {:?} from-x: {} from-y: {} too-x: {} too-y: {}",
-        instructions[0].command,
-        instructions[0].x_from,
-        instructions[0].y_from,
-        instructions[0].x_too,
-        instructions[0].y_too
-    );
-
-    light_grid => fix_lights(light_grid, instructions[0].command, instructions[0].x_from, instructions[0].y_from, instructions[0].x_too, instructions[0].y_too);
-
     
+    for ins in instructions {
+        light_grid = fix_lights(light_grid, &ins.command, ins.x_from, ins.y_from, ins.x_too, ins.y_too);
+    }
+
+    println!(
+        "{:?}",
+        read_lights(light_grid),
+    );
 }
