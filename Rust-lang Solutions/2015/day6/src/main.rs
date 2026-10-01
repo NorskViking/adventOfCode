@@ -4,23 +4,35 @@ use std::fmt::Debug;
 
 #[derive(Debug, Clone)]
 struct Light {
-    turned_on: bool
+    turned_on: bool,
+    brightness: i32, // Part 2
 }
 
 impl Light {
-    fn turn_on(&mut self) -> bool {
+    fn turn_on(&mut self) -> &mut Light {
         self.turned_on = true;
-        self.turned_on
+        // Part 2
+        self.brightness += 1;
+
+        self
     }
 
-    fn turn_off(&mut self) -> bool {
+    fn turn_off(&mut self) -> &mut Light {
         self.turned_on = false;
-        self.turned_on
+        // Part 2
+        if self.brightness > 0 {
+            self.brightness -= 1;
+        }
+
+        self
     }
 
-    fn toggle(&mut self) -> bool {
+    fn toggle(&mut self) -> &mut Light {
         self.turned_on = !self.turned_on;
-        self.turned_on
+        // Part 2
+        self.brightness += 2;
+
+        self
     }
 }
 
@@ -82,6 +94,18 @@ fn read_lights(lights: Vec<Vec<Light>>) -> u32 {
     num_lights_turned_on
 }
 
+fn read_brightness(lights: Vec<Vec<Light>>) -> i32 {
+    let mut total_brightness: i32 = 0;
+
+    for row in lights {
+        for light in row {
+            total_brightness += light.brightness;
+        }
+    }
+
+    total_brightness
+}
+
 
 fn main() {
     println!("Advent of Code 2015, Day 6\n");
@@ -90,7 +114,7 @@ fn main() {
         .expect("Read puzzle input.");
 
     // Initiate the grid
-    let mut light_grid: Vec<Vec<Light>> = vec![vec![Light { turned_on: false }; 1000]; 1000]; 
+    let mut light_grid: Vec<Vec<Light>> = vec![vec![Light { turned_on: false, brightness: 0 }; 1000]; 1000]; 
 
     let instructions = parse_input(&puzzle);
 
@@ -100,7 +124,8 @@ fn main() {
     }
 
     println!(
-        "{:?}",
-        read_lights(light_grid),
+        "Num. lights turned on: {:?}    Total brightness of the lights: {:?}",
+        read_lights(light_grid.clone()),
+        read_brightness(light_grid.clone()),
     );
 }
